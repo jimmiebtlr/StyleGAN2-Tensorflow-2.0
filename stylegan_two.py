@@ -13,8 +13,8 @@ from tensorflow.keras.initializers import *
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
-from datagen import dataGenerator, printProgressBar
-from conv_mod import *
+from .datagen import dataGenerator, printProgressBar
+from .conv_mod import *
 
 im_size = 256
 latent_size = 512
@@ -73,7 +73,7 @@ def upsample(x):
     return K.resize_images(x,2,2,"channels_last",interpolation='bilinear')
 
 def upsample_to_size(x):
-    y = im_size / x.shape[2]
+    y = int(im_size / x.shape[2])
     x = K.resize_images(x, y, y, "channels_last",interpolation='bilinear')
     return x
 
@@ -348,7 +348,7 @@ class StyleGAN(object):
         self.GAN.G.summary()
 
         #Data generator (my own code, not from TF 2.0)
-        self.im = dataGenerator(directory, im_size, flip = True)
+        self.im = dataGenerator(im_size, flip = True)
 
         #Set up variables
         self.lastblip = time.clock()
