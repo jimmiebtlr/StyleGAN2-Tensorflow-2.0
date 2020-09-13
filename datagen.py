@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 import random
 import os
+import tensorflow_datasets as tfds
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 50, fill = '█'):
@@ -32,8 +33,8 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
 
 class dataGenerator(object):
 
-    def __init__(self, folder, im_size, mss = (1024 ** 3), flip = True, verbose = True):
-        self.folder = folder
+    def __init__(self, im_size, mss = (1024 ** 3), flip = True, verbose = True):
+        #self.folder = folder
         self.im_size = im_size
         self.segment_length = mss // (im_size * im_size * 3)
         self.flip = flip
@@ -42,19 +43,20 @@ class dataGenerator(object):
         self.segments = []
         self.images = []
         self.update = 0
+        self.ds = tfds.load("lsun/bedroom", data_dir="/storage/bedroom")
 
         if self.verbose:
             print("Importing images...")
             print("Maximum Segment Size: ", self.segment_length)
 
-        try:
-            os.mkdir("data/" + self.folder + "-npy-" + str(self.im_size))
-        except:
-            self.load_from_npy(folder)
-            return
+        #try:
+        #    os.mkdir("data/" + self.folder + "-npy-" + str(self.im_size))
+        #except:
+        #    self.load_from_npy(folder)
+        #    return
 
-        self.folder_to_npy(self.folder)
-        self.load_from_npy(self.folder)
+        #self.folder_to_npy(self.folder)
+        #self.load_from_npy(self.folder)
 
     def folder_to_npy(self, folder):
 
@@ -123,20 +125,20 @@ class dataGenerator(object):
         self.update = 0
 
     def get_batch(self, num):
-
-        if self.update > self.images.shape[0]:
-            self.load_from_npy(self.folder)
+        #self.load_from_npy(self.folder)
 
         self.update = self.update + num
 
-        idx = np.random.randint(0, self.images.shape[0] - 1, num)
-        out = []
+        #idx = np.random.randint(0, self.images.shape[0] - 1, num)
+        #out = []
 
-        for i in idx:
-            out.append(self.images[i])
-            if self.flip and random.random() < 0.5:
-                out[-1] = np.flip(out[-1], 1)
+        #for i in idx:
+        #    out.append(self.images[i])
+        #    if self.flip and random.random() < 0.5:
+        #        out[-1] = np.flip(out[-1], 1)
 
-        return np.array(out).astype('float32') / 255.0
+        #return np.array(out).astype('float32') / 255.0
+        return tfds.as_numpy(self.ds.take(num))
+
 
 
